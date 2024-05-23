@@ -42,13 +42,11 @@ typedef const char *PCTSTR, *LPCTSTR;
 #define _TEXT(x) __T(x)
 #endif
 
-#include <malloc.h>  // malloc
-
 #include <cassert>   // assert
 #include <cerrno>    // errno
 #include <cstring>   // memcmp
 #include <cstdio>    // sprintf_s
-#include <cstdlib>   // atoi
+#include <cstdlib>   // atoi, malloc
 #include <string>
 
 #include <system_error>
