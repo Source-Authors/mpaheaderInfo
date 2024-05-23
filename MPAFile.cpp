@@ -12,11 +12,10 @@
 
 #include "stdafx.h"
 
-#include "MpaFile.h"
+#include "MPAFile.h"
 
 #include "MPAException.h"
-
-#include <Windows.h>
+#include "Platform.h"
 
 CMPAFile::CMPAFile(LPCTSTR file) {
   m_pStream = new CMPAFileStream(file);
@@ -141,7 +140,7 @@ CMPAFrame* CMPAFile::GetFrame(CMPAFile::GetType Type, CMPAFrame* frame,
       return GetFrame(GetType::Resync, frame, should_delete_old_frame, offset);
     }
 
-    OutputDebugString(e.GetErrorDescription());
+    DumpSystemError(e.GetErrorDescription());
     new_frame = nullptr;
   }
 

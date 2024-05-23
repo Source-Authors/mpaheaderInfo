@@ -13,7 +13,7 @@
 #ifndef MPA_HEADER_INFO_TAG_H_
 #define MPA_HEADER_INFO_TAG_H_
 
-#include "mpastream.h"
+#include "MPAStream.h"
 
 class CTag {
  public:
@@ -31,11 +31,12 @@ class CTag {
   CTag(CMPAStream* stream, LPCTSTR szName, bool is_appended,
        unsigned offset = 0, unsigned dwSize = 0);
 
-  unsigned m_dwOffset;  // beginning of tag
-  unsigned m_dwSize;    // size of tag
-  bool m_bAppended;     // true if at the end of file
-  float m_fVersion;     // format x.yz
-  LPTSTR m_szName;      // name of tag
+  unsigned m_dwOffset;      // beginning of tag
+  unsigned m_dwSize;        // size of tag
+  unsigned m_dwNumItems;    // size of tag
+  bool m_bAppended;         // true if at the end of file
+  float m_fVersion;         // format x.yz
+  LPTSTR m_szName;          // name of tag
 
   void SetVersion(unsigned char bVersion1, unsigned char bVersion2 = 0, unsigned char bVersion3 = 0);
 };

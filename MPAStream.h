@@ -17,8 +17,8 @@ class CMPAStream {
  public:
   virtual ~CMPAStream();
 
-  virtual [[nodiscard]] unsigned GetSize() const = 0;
-  virtual [[nodiscard]] unsigned char* ReadBytes(
+  [[nodiscard]] virtual unsigned GetSize() const = 0;
+  [[nodiscard]] virtual unsigned char* ReadBytes(
       unsigned dwSize, unsigned& offset, bool bMoveOffset = true,
       bool bReverse = false) const = 0;
 

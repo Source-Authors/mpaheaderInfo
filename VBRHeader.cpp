@@ -30,12 +30,12 @@ CVBRHeader* CVBRHeader::FindHeader(const CMPAFrame* frame) {
 }
 
 CVBRHeader::CVBRHeader(CMPAStream* stream, unsigned offset)
-    : m_pStream(stream),
-      m_pnToc(nullptr),
-      m_dwOffset(offset),
+    : m_dwBytes(0),
       m_dwFrames(0),
-      m_dwBytes(0),
+      m_pStream(stream),
+      m_dwOffset(offset),
       m_dwQuality(0),
+      m_pnToc(nullptr),
       m_dwTableSize(0) {}
 
 bool CVBRHeader::CheckID(CMPAStream* stream, unsigned offset, char ch0,

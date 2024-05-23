@@ -20,7 +20,7 @@ CMPAStream::CMPAStream(LPCTSTR file_name) {
   assert(file_name);
 
   // save filename
-  m_szFile = _tcsdup(file_name);
+  m_szFile = strdup(file_name);
 }
 
 CMPAStream::~CMPAStream() { free(m_szFile); }

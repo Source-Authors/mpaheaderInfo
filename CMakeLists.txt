@@ -103,6 +103,7 @@ target_sources(mpaheaderinfo
     "MPAHeader.cpp"
     "MPAStream.cpp"
     "MusicMatchTag.cpp"
+    "Platform.cpp"
     "stdafx.cpp"
     "Tag.cpp"
     "Tags.cpp"
@@ -124,6 +125,7 @@ target_sources(mpaheaderinfo
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/MPAHeader.h>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/MPAStream.h>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/MusicMatchTag.h>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/Platform.h>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/Tag.h>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/Tags.h>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/VBRHeader.h>
@@ -142,6 +144,7 @@ if (MPA_BUILD_WITHOUT_ATL)
   )
 endif(MPA_BUILD_WITHOUT_ATL)
 
+target_compile_features(mpaheaderinfo PRIVATE cxx_std_17)
 set_target_properties(mpaheaderinfo
   PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
 

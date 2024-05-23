@@ -16,8 +16,7 @@
 #include "MPAException.h"
 #include "MPAEndOfFileException.h"
 #include "MPAStream.h"
-
-#include <Windows.h>
+#include "Platform.h"
 
 // static variables
 LPCTSTR CMPAHeader::m_szLayers[] = {_T("Layer I"), _T("Layer II"),
@@ -237,7 +236,7 @@ const unsigned CMPAHeader::m_dwMaxRange = 16384U;
 CMPAHeader::CMPAHeader(CMPAStream* stream, unsigned& offset,
                        bool is_exact_offset, bool should_reverse,
                        CMPAHeader* compare_header)
-    : m_wAllocationTableIndex(0), m_wBound(32) {
+    : m_wBound(32), m_wAllocationTableIndex(0) {
   assert(stream);
 
   // look for synchronisation
@@ -276,7 +275,7 @@ CMPAHeader::CMPAHeader(CMPAStream* stream, unsigned& offset,
       errors is made upon the value of bExactOffset
       */
       catch (const CMPAException&) {
-        OutputDebugString(_T("Exception at construction of MPAHeader."));
+        DumpSystemError(_T("Exception at construction of MPAHeader."));
 
         if (is_exact_offset) throw;
       }

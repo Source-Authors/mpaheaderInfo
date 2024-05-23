@@ -38,9 +38,9 @@ CLAMETag::CLAMETag(CMPAStream* stream, bool is_appended, unsigned offset)
 
   CString strVersion = CString{reinterpret_cast<const char*>(buffer) + 4, 4};
 #ifndef MPA_USE_STRING_FOR_CSTRING
-  m_fVersion = (float)_tstof(strVersion);
+  m_fVersion = (float)atof(strVersion);
 #else
-  m_fVersion = (float)_tstof(strVersion.c_str());
+  m_fVersion = (float)atof(strVersion.c_str());
 #endif
 
   // LAME prior to 3.90 writes only a 20 byte encoder string
@@ -72,7 +72,7 @@ CLAMETag::CLAMETag(CMPAStream* stream, bool is_appended, unsigned offset)
     m_bRevision = info_and_vbr & 0xF0;
     // invalid value
     if (m_bRevision == 15U) {
-      throw std::exception("Incorrect revision (15)");
+      throw std::out_of_range{"Incorrect revision (15)"};
     }
 
     // VBR info in 4 LSB

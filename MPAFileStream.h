@@ -13,6 +13,8 @@
 #ifndef MPA_HEADER_INFO_MPA_FILE_STREAM_H_
 #define MPA_HEADER_INFO_MPA_FILE_STREAM_H_
 
+#include <cstdio>  // FILE
+
 #include "MPAStream.h"
 
 using HANDLE = void*;
@@ -20,14 +22,14 @@ using HANDLE = void*;
 class CMPAFileStream : public CMPAStream {
  public:
   explicit CMPAFileStream(LPCTSTR file_name);
-  CMPAFileStream(LPCTSTR file_name, HANDLE hFile);
+  CMPAFileStream(LPCTSTR file_name, FILE* hFile);
 
   virtual ~CMPAFileStream();
 
  private:
   static const unsigned INIT_BUFFERSIZE;
 
-  HANDLE m_hFile;
+  FILE* m_hFile;
   bool m_bMustReleaseFile;
 
   // concerning read-buffer

@@ -29,15 +29,29 @@ typedef const char *PCTSTR, *LPCTSTR;
 
 #endif /* UNICODE */
 
+// We are standard compliant.
+#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_NONSTDC_NO_DEPRECATE
+
 // dimhotepus: Add missed headers.
+#ifdef _WIN32
 #include <tchar.h>   // _T
+#else
+#define __T(x) x
+#define _T(x) __T(x)
+#define _TEXT(x) __T(x)
+#endif
+
 #include <malloc.h>  // malloc
-#include <crtdbg.h>  // assert
 
 #include <cassert>   // assert
+#include <cerrno>    // errno
+#include <cstring>   // memcmp
 #include <cstdio>    // sprintf_s
 #include <cstdlib>   // atoi
 #include <string>
+
+#include <system_error>
 
 #define CString std::string
 #define MPA_USE_STRING_FOR_CSTRING 1

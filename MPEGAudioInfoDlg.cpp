@@ -5,6 +5,7 @@
 #include "MPEGAudioInfo.h"
 #include "MPEGAudioInfoDlg.h"
 #include "AboutDlg.h"
+#include "Platform.h"
 #include ".\mpegaudioinfodlg.h"
 
 
@@ -302,7 +303,7 @@ void CMPEGAudioInfoDlg::LoadMPEGFile(LPCTSTR szFile)
 	}
 	catch(CMPAException& Exc)
 	{
-		Exc.ShowError();
+		DumpSystemError(Exc.GetErrorDescription());
 		m_CtrlPrevFrame.EnableWindow(false);
 		m_CtrlNextFrame.EnableWindow(false);
 		m_CtrlFirstFrame.EnableWindow(false);

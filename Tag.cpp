@@ -16,14 +16,15 @@
 CTag::CTag(CMPAStream* stream, LPCTSTR name, bool is_appended, unsigned offset,
            unsigned size)
     : m_pStream(stream),
-      m_bAppended(is_appended),
       m_dwOffset(offset),
-      m_dwSize(size) {
+      m_dwSize(size),
+      m_dwNumItems(0),
+      m_bAppended(is_appended) {
   assert(stream);
   assert(name);
 
   m_fVersion = 0.0f;
-  m_szName = _tcsdup(name);
+  m_szName = strdup(name);
 }
 
 CTag::~CTag() { free(m_szName); }

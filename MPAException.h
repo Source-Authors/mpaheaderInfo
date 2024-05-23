@@ -40,7 +40,6 @@ class CMPAException {
 
   ErrorIDs GetErrorID() const { return m_ErrorID; };
   LPCTSTR GetErrorDescription();
-  void ShowError();
 
  private:
   ErrorIDs m_ErrorID;

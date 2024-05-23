@@ -68,7 +68,7 @@ unsigned CID3V2Tag::GetSynchsafeInteger(unsigned value) {
 
   unsigned result{0U};
 
-  for (int n = 0; n < sizeof(unsigned); n++) {
+  for (size_t n = 0; n < sizeof(unsigned); n++) {
     result = (result << 7U) | ((value & mask) >> 24U);
     value <<= 8U;
   }

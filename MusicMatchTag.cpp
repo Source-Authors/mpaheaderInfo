@@ -1,7 +1,8 @@
 #include "stdafx.h"
-#include ".\musicmatchtag.h"
 
-#include <math.h>  // for floor
+#include "MusicMatchTag.h"
+
+#include <cmath>  // for floor
 
 // information from documentation "musicmatch.txt" in id3lib's doc folder
 
@@ -63,7 +64,7 @@ CMusicMatchTag::CMusicMatchTag(CMPAStream* stream, unsigned offset)
     metadata_size = 7868U;  // fixed size up to version 3
 
   if (metadata_size == 0)  // could not find correct metadata size
-    throw std::exception("Incorrect metadata size (0)");
+    throw std::length_error("Incorrect metadata size (0)");
 
   // total size = footer + data offsets + metadata + version + img (incl.
   // unused)

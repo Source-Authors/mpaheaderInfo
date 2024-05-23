@@ -20,6 +20,7 @@
 #include "Lyrics3Tag.h"
 #include "APETag.h"
 #include "MusicMatchTag.h"
+#include "Platform.h"
 
 const CTags::FindTagFunctionPtr CTags::m_appendedTagFactories[] = {
     (CTags::FindTagFunctionPtr)&CID3V1Tag::FindTag,
@@ -76,7 +77,7 @@ bool CTags::FindTag(FindTagFunctionPtr find_tag, CMPAStream* stream,
       return true;
     }
   } catch (CMPAException& ex) {
-    ex.ShowError();
+    DumpSystemError(ex.GetErrorDescription());
   }
 
   return false;

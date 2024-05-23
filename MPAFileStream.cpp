@@ -17,8 +17,6 @@
 #include "MPAException.h"
 #include "MPAEndOfFileException.h"
 
-#include <Windows.h>
-
 // 1KB is initial buffersize
 const unsigned CMPAFileStream::INIT_BUFFERSIZE = 1024U;
 
@@ -26,21 +24,18 @@ CMPAFileStream::CMPAFileStream(LPCTSTR file_name)
     : CMPAStream(file_name), m_dwOffset(0) {
   // open with CreateFile (no limitation of 128byte filename length, like in
   // mmioOpen)
-  m_hFile = ::CreateFile(file_name, GENERIC_READ, FILE_SHARE_READ, nullptr,
-                         OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+  m_hFile = fopen(file_name, "rb");
 
-  if (m_hFile == INVALID_HANDLE_VALUE) {
-    // throw error
+  if (!m_hFile) {
     throw CMPAException{CMPAException::ErrorIDs::ErrOpenFile, file_name,
-                        _T("CreateFile"),
-                        true};
+                        _T("CreateFile"), true};
   }
 
   m_bMustReleaseFile = true;
   Init();
 }
 
-CMPAFileStream::CMPAFileStream(LPCTSTR file_name, HANDLE hFile)
+CMPAFileStream::CMPAFileStream(LPCTSTR file_name, FILE* hFile)
     : CMPAStream(file_name), m_hFile(hFile), m_dwOffset(0) {
   m_bMustReleaseFile = false;
   Init();
@@ -58,20 +53,19 @@ CMPAFileStream::~CMPAFileStream() {
   delete[] m_pBuffer;
 
   // close file
-  if (m_bMustReleaseFile) ::CloseHandle(m_hFile);
+  if (m_bMustReleaseFile) {
+    fclose(m_hFile);
+    m_hFile = nullptr;
+  }
 }
 
 // set file position
 void CMPAFileStream::SetPosition(unsigned offset) const {
-  // convert from unsigned unsigned to signed 64bit long
-  const unsigned result =
-      ::SetFilePointer(m_hFile, offset, nullptr, FILE_BEGIN);
+  const int result = fseek(m_hFile, offset, SEEK_SET);
 
-  if (result == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR) {
-    // != NO_ERROR
-    // throw error
+  if (result != 0) {
     throw CMPAException{CMPAException::ErrorIDs::ErrSetPosition, m_szFile,
-                        _T("SetFilePointer"), true};
+                        _T("fseek"), true};
   }
 }
 
@@ -94,11 +88,42 @@ unsigned char* CMPAFileStream::ReadBytes(unsigned size, unsigned& offset,
 }
 
 unsigned CMPAFileStream::GetSize() const {
-  unsigned size = ::GetFileSize(m_hFile, nullptr);
-
-  if (size == INVALID_FILE_SIZE)
+  const long start_pos{ftell(m_hFile)};
+  if (start_pos == -1L) {
     throw CMPAException{CMPAException::ErrorIDs::ErrReadFile, m_szFile,
-                        _T("GetFileSize"), true};
+                        _T("ftell"), true};
+  }
+  
+  if (fseek(m_hFile, 0L, SEEK_END)) {
+    fseek(m_hFile, start_pos, SEEK_SET);
+    throw CMPAException{CMPAException::ErrorIDs::ErrReadFile, m_szFile,
+                        _T("fseek"), true};    
+  }
+
+#ifdef _WIN32
+  // ftell and _ftelli64 return the current file position.
+  // The value returned by ftell and _ftelli64 may not reflect the physical byte
+  // offset for streams opened in text mode, because text mode causes carriage
+  // return-line feed translation.
+  const long size{ftell(m_hFile)};
+
+  if (size == -1L) {
+    throw CMPAException{CMPAException::ErrorIDs::ErrReadFile, m_szFile,
+                        _T("ftell"), true};
+  }
+#else
+  // https://wiki.sei.cmu.edu/confluence/display/c/FIO19-C.+Do+not+use+fseek()+and+ftell()+to+compute+the+size+of+a+regular+file
+  const long size{ftello(m_hFile)};
+
+  if (size == -1L) {
+    throw CMPAException{CMPAException::ErrorIDs::ErrReadFile, m_szFile,
+                        _T("ftello"), true};
+  }
+#endif
+
+  
+  if (fseek(m_hFile, start_pos, SEEK_SET)) {
+  }
 
   return size;
 }
@@ -139,14 +164,14 @@ bool CMPAFileStream::FillBuffer(unsigned offset, unsigned size,
 // read from file, return number of bytes read
 unsigned CMPAFileStream::Read(void* data, unsigned offset,
                               unsigned size) const {
-  DWORD bytes_read = 0;
-
   // set position first
   SetPosition(offset);
 
-  if (!::ReadFile(m_hFile, data, size, &bytes_read, nullptr))
+  const size_t bytes_read = fread(data, 1, size, m_hFile);
+  if (ferror(m_hFile))
     throw CMPAException{CMPAException::ErrorIDs::ErrReadFile, m_szFile,
-                        _T("ReadFile"), true};
+                        _T("fread"), true};
 
-  return bytes_read;
+  // Safe as size is unsigned.
+  return static_cast<unsigned>(bytes_read);
 }

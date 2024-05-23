@@ -29,6 +29,7 @@ CAPETag* CAPETag::FindTag(CMPAStream* stream, bool is_appended,
 
   const unsigned char* buffer{stream->ReadBytes(8U, offset, false)};
 
+  // APEv2 only.
   if (memcmp("APETAGEX", buffer, 8U) == 0)
     return new CAPETag{stream, is_appended, offset};
 
@@ -37,6 +38,7 @@ CAPETag* CAPETag::FindTag(CMPAStream* stream, bool is_appended,
 
 CAPETag::CAPETag(CMPAStream* stream, bool is_appended, unsigned offset)
     : CTag{stream, _T("APE"), is_appended, offset} {
+  // skip APETAGEX
   offset += 8U;
 
   const unsigned version{stream->ReadLEValue(4U, offset)};
@@ -47,7 +49,7 @@ CAPETag::CAPETag(CMPAStream* stream, bool is_appended, unsigned offset)
   // get size
   m_dwSize = stream->ReadLEValue(4, offset);
 
-  /*unsigned dwNumItems = */ stream->ReadLEValue(4U, offset);
+  m_dwNumItems = stream->ReadLEValue(4U, offset);
 
   // only valid for version 2
   const unsigned flag{stream->ReadLEValue(4U, offset)};
@@ -63,7 +65,7 @@ CAPETag::CAPETag(CMPAStream* stream, bool is_appended, unsigned offset)
   }
 
   if (is_header) m_dwSize += 32U;  // add header
-  if (is_appended) m_dwOffset -= (m_dwSize - 32);
+  if (is_appended || is_footer) m_dwOffset -= (m_dwSize - 32);
 }
 
 CAPETag::~CAPETag() {}

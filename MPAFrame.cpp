@@ -17,8 +17,7 @@
 #include <cmath>  // for ceil
 
 #include "MPAEndOfFileException.h"
-
-#include <Windows.h>
+#include "Platform.h"
 
 // number of bits that are used for CRC check in MPEG 1 Layer 2
 // (this table is invalid for Joint Stereo/Intensity Stereo)
@@ -58,7 +57,7 @@ CMPAFrame::CMPAFrame(CMPAStream* stream, unsigned& offset,
     } catch (CMPAEndOfFileException&) {
       m_bIsLast = true;
     } catch (CMPAException&) {
-      OutputDebugString(_T("Didn't find subsequent frame"));
+      DumpSystemError(_T("Didn't find subsequent frame"));
       // if (e->GetErrorID() == CMPAException::NoFrameInTolerance
     }
   }
@@ -92,6 +91,7 @@ bool CMPAFrame::CheckCRC() const {
     // for Layer III the protected bits are the side information
     case CMPAHeader::MPALayer::Layer3:
       protected_bits = m_pHeader->GetSideInfoSize() * 8U;
+      break;
     default:
       return true;
   }
@@ -130,7 +130,7 @@ unsigned short CMPAFrame::CalcCRC16(unsigned char* buffer, unsigned bit_size) {
 
       crc_mask >>= 1;
 
-      unsigned short tmpi{crc & 0x8000U};
+      unsigned short tmpi = static_cast<unsigned short>(crc & 0x8000U);
 
       crc <<= 1;
 
