@@ -31,7 +31,9 @@ typedef const char *PCTSTR, *LPCTSTR;
 
 // We are standard compliant.
 #define _CRT_SECURE_NO_WARNINGS
-#define _CRT_NONSTDC_NO_DEPRECATE
+#ifndef _CRT_NONSTDC_NO_DEPRECATE
+#define _CRT_NONSTDC_NO_DEPRECATE 1
+#endif
 
 // dimhotepus: Add missed headers.
 #ifdef _WIN32
