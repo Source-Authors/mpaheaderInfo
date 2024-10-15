@@ -73,11 +73,14 @@ unsigned char* CMPAFileStream::ReadBytes(unsigned size, unsigned& offset,
                                          bool move_offset,
                                          bool should_reverse) const {
   // enough bytes in buffer, otherwise read from file
-  if (m_dwOffset > offset || (((ptrdiff_t)((m_dwOffset + m_dwBufferSize) -
-                                           offset)) < (ptrdiff_t)size)) {
+  if (offset < m_dwOffset || m_dwOffset + m_dwBufferSize < offset + size) {
     if (!FillBuffer(offset, size, should_reverse)) {
       throw CMPAEndOfFileException{m_szFile};
     }
+
+    if (move_offset) offset += size;
+
+    return m_pBuffer;
   }
 
   unsigned char* buffer{m_pBuffer + (offset - m_dwOffset)};
@@ -93,11 +96,11 @@ unsigned CMPAFileStream::GetSize() const {
     throw CMPAException{CMPAException::ErrorIDs::ErrReadFile, m_szFile,
                         _T("ftell"), true};
   }
-  
+
   if (fseek(m_hFile, 0L, SEEK_END)) {
     fseek(m_hFile, start_pos, SEEK_SET);
     throw CMPAException{CMPAException::ErrorIDs::ErrReadFile, m_szFile,
-                        _T("fseek"), true};    
+                        _T("fseek"), true};
   }
 
 #ifdef _WIN32
@@ -121,8 +124,9 @@ unsigned CMPAFileStream::GetSize() const {
   }
 #endif
 
-  
   if (fseek(m_hFile, start_pos, SEEK_SET)) {
+    throw CMPAException{CMPAException::ErrorIDs::ErrReadFile, m_szFile,
+                        _T("fseek"), true};
   }
 
   return size;
@@ -156,9 +160,8 @@ bool CMPAFileStream::FillBuffer(unsigned offset, unsigned size,
   // set new offset
   m_dwOffset = offset;
 
-  if (m_dwBufferSize < size) return false;
-
-  return true;
+  // false if eof.
+  return m_dwBufferSize >= size;
 }
 
 // read from file, return number of bytes read
@@ -168,7 +171,7 @@ unsigned CMPAFileStream::Read(void* data, unsigned offset,
   SetPosition(offset);
 
   const size_t bytes_read = fread(data, 1, size, m_hFile);
-  if (ferror(m_hFile))
+  if (bytes_read < size && ferror(m_hFile))
     throw CMPAException{CMPAException::ErrorIDs::ErrReadFile, m_szFile,
                         _T("fread"), true};
 
