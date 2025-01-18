@@ -9,69 +9,56 @@
 #define new DEBUG_NEW
 #endif
 
+namespace {
 
-// CMPEGAudioInfoApp
+CMPEGAudioInfoApp app;
+
+}  // namespace
 
 BEGIN_MESSAGE_MAP(CMPEGAudioInfoApp, CWinApp)
-	ON_COMMAND(ID_HELP, CWinApp::OnHelp)
+  ON_COMMAND(ID_HELP, CWinApp::OnHelp)
 END_MESSAGE_MAP()
 
+CMPEGAudioInfoApp::CMPEGAudioInfoApp() {}
 
-// CMPEGAudioInfoApp construction
+BOOL CMPEGAudioInfoApp::InitInstance() {
+  BOOL rc = __super::InitInstance();
+  if (!rc) {
+    AfxMessageBox("Failed to initialize Mpeg Audio Info app.\n", MB_ICONERROR);
+    return FALSE;
+  }
 
-CMPEGAudioInfoApp::CMPEGAudioInfoApp()
-{
-	// TODO: add construction code here,
-	// Place all significant initialization in InitInstance
-}
+  AfxEnableControlContainer();
 
+  if (FAILED(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED))) {
+    AfxMessageBox("Failed to initialize COM.\n", MB_ICONERROR);
+    return FALSE;
+  }
 
-// The one and only CMPEGAudioInfoApp object
+  // Standard initialization
+  // If you are not using these features and wish to reduce the size
+  // of your final executable, you should remove from the following
+  // the specific initialization routines you do not need
+  // Change the registry key under which our settings are stored
+  // TODO: You should modify this string to be something appropriate
+  // such as the name of your company or organization
+  SetRegistryKey(_T("MPEG Audio Info"));
 
-CMPEGAudioInfoApp theApp;
+  MpegAudioInfoDlg dlg;
+  m_pMainWnd = &dlg;
 
+  INT_PTR nResponse = dlg.DoModal();
+  if (nResponse == IDOK) {
+    // TODO: Place code here to handle when the dialog is
+    //  dismissed with OK
+  } else if (nResponse == IDCANCEL) {
+    // TODO: Place code here to handle when the dialog is
+    //  dismissed with Cancel
+  }
 
-// CMPEGAudioInfoApp initialization
+  CoUninitialize();
 
-BOOL CMPEGAudioInfoApp::InitInstance()
-{
-	// InitCommonControls() is required on Windows XP if an application
-	// manifest specifies use of ComCtl32.dll version 6 or later to enable
-	// visual styles.  Otherwise, any window creation will fail.
-	InitCommonControls();
-
-	CWinApp::InitInstance();
-
-	AfxEnableControlContainer();
-
-	CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-
-	// Standard initialization
-	// If you are not using these features and wish to reduce the size
-	// of your final executable, you should remove from the following
-	// the specific initialization routines you do not need
-	// Change the registry key under which our settings are stored
-	// TODO: You should modify this string to be something appropriate
-	// such as the name of your company or organization
-	SetRegistryKey(_T("MPEG Audio Info"));
-
-	CMPEGAudioInfoDlg dlg;
-	m_pMainWnd = &dlg;
-	INT_PTR nResponse = dlg.DoModal();
-	if (nResponse == IDOK)
-	{
-		// TODO: Place code here to handle when the dialog is
-		//  dismissed with OK
-	}
-	else if (nResponse == IDCANCEL)
-	{
-		// TODO: Place code here to handle when the dialog is
-		//  dismissed with Cancel
-	}
-
-	// Since the dialog has been closed, return FALSE so that we exit the
-	//  application, rather than start the application's message pump.
-
-	CoUninitialize();
-	return FALSE;
+  // Since the dialog has been closed, return FALSE so that we exit the
+  //  application, rather than start the application's message pump.
+  return FALSE;
 }

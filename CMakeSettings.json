@@ -7,13 +7,13 @@
       "inheritEnvironments": [ "msvc_x64_x64" ],
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "-DMPA_BUILD_WITHOUT_ATL=True",
+      "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "variables": [
         {
-          "name": "MPA_BUILD_WITHOUT_ATL",
-          "value": "true",
+          "name": "SA_MPA_BUILD_WITHOUT_ATL",
+          "value": "false",
           "type": "BOOL"
         }
       ]

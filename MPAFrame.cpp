@@ -14,15 +14,49 @@
 
 #include "MPAFrame.h"
 
-#include <cmath>  // for ceil
+#include <cmath>  // for std::ceil
 
 #include "MPAEndOfFileException.h"
 #include "Platform.h"
 
+namespace {
+
+// CRC16 check
+static unsigned short CalcCRC16(unsigned char* buffer, unsigned bit_size) {
+  assert(buffer);
+
+  unsigned short tmp_char{0}, crc_mask{0};
+  unsigned short crc{0xFFFFU};  // start with inverted value of 0
+
+  // start with byte 2 of header
+  for (unsigned n = 16U; n < bit_size; n++) {
+    // skip the 2 bytes of the crc itself
+    if (n < 32U || n >= 48U) {
+      if (n % 8U == 0) {
+        crc_mask = 1U << 8U;
+        tmp_char = buffer[n / 8U];
+      }
+
+      crc_mask >>= 1;
+
+      unsigned short tmpi = static_cast<unsigned short>(crc & 0x8000U);
+
+      crc <<= 1;
+
+      if (!tmpi ^ !(tmp_char & crc_mask)) crc ^= 0x8005U;
+    }
+  }
+
+  crc &= 0xFFFFU;  // invert the result
+  return crc;
+}
+
+}  // namespace
+
 // number of bits that are used for CRC check in MPEG 1 Layer 2
 // (this table is invalid for Joint Stereo/Intensity Stereo)
 // 1. index = allocation table index, 2. index = mono
-const unsigned CMPAFrame::m_dwProtectedBitsLayer2[5][2] = {
+constexpr unsigned CMPAFrame::m_dwProtectedBitsLayer2[5][2] = {
     {284, 142},  // table a
     {308, 154},  // table b
     {42, 84},    // table c
@@ -31,34 +65,30 @@ const unsigned CMPAFrame::m_dwProtectedBitsLayer2[5][2] = {
 };
 
 CMPAFrame::CMPAFrame(CMPAStream* stream, unsigned& offset,
-                     bool should_find_subsequent_frame, bool is_exact_offset,
+                     bool should_find_next_frame, bool is_exact_offset,
                      bool should_reverse, CMPAHeader* compare_header)
-    : m_pStream(stream), m_dwOffset(offset), m_bIsLast(false) {
-  // decode header of frame at position offset
-  m_pHeader = new CMPAHeader(stream, m_dwOffset, is_exact_offset,
-                             should_reverse, compare_header);
-  m_dwFrameSize = m_pHeader->CalcFrameSize();
-
+    // decode header of frame at position offset
+    : m_pHeader{new CMPAHeader{stream, offset, is_exact_offset, should_reverse,
+                               compare_header}},
+      m_pStream{stream},
+      m_dwOffset{offset},
+      m_dwFrameSize{m_pHeader->CalcFrameSize()},
+      m_bIsLast{false} {
   // do extended check?
-  if (should_find_subsequent_frame) {
+  if (should_find_next_frame) {
     // calc offset for next frame header
     unsigned new_offset{GetSubsequentHeaderOffset()};
 
-    /* if no subsequent frame found
-            - end of file reached (last frame)
-            - corruption in file
-                    - subsequent frame is at incorrect position (out of
-       detection range)
-                    - frame was incorrectly detected (very improbable)
-    */
+    // If no next frame found
+    // - end of file reached (last frame)
+    // - corruption in file
+    // - next frame is at incorrect position (out of detection range)
+    // - frame was incorrectly detected (very improbable)
     try {
-      CMPAFrame subsequentFrame(stream, new_offset, false, true, false,
-                                m_pHeader);
+      const CMPAFrame next_frame{stream, new_offset, false,
+                                 true,   false,      m_pHeader};
     } catch (CMPAEndOfFileException&) {
       m_bIsLast = true;
-    } catch (CMPAException&) {
-      DumpSystemError(_T("Didn't find subsequent frame"));
-      // if (e->GetErrorID() == CMPAException::NoFrameInTolerance
     }
   }
 }
@@ -99,7 +129,8 @@ bool CMPAFrame::CheckCRC() const {
   // CRC is also calculated from the last 2 bytes of the header
   protected_bits += MPA_HEADER_SIZE * 8U + 16U;  // +16bit for CRC itself
 
-  const unsigned byte_size{static_cast<unsigned>(ceil(protected_bits / 8.0))};
+  const unsigned byte_size{
+      static_cast<unsigned>(std::ceil(protected_bits / 8.0f))};
 
   // the first 2 bytes and the CRC itself are automatically skipped
   unsigned offset{m_dwOffset};
@@ -110,34 +141,4 @@ bool CMPAFrame::CheckCRC() const {
   offset += MPA_HEADER_SIZE;
 
   return crc16 == m_pStream->ReadBEValue(2, offset, false);
-}
-
-// CRC16 check
-unsigned short CMPAFrame::CalcCRC16(unsigned char* buffer, unsigned bit_size) {
-  assert(buffer);
-
-  unsigned short tmp_char{0}, crc_mask{0};
-  unsigned short crc{0xFFFFU};  // start with inverted value of 0
-
-  // start with byte 2 of header
-  for (unsigned n = 16U; n < bit_size; n++) {
-    // skip the 2 bytes of the crc itself
-    if (n < 32U || n >= 48U) {
-      if (n % 8U == 0) {
-        crc_mask = 1U << 8U;
-        tmp_char = buffer[n / 8U];
-      }
-
-      crc_mask >>= 1;
-
-      unsigned short tmpi = static_cast<unsigned short>(crc & 0x8000U);
-
-      crc <<= 1;
-
-      if (!tmpi ^ !(tmp_char & crc_mask)) crc ^= 0x8005U;
-    }
-  }
-
-  crc &= 0xFFFFU;  // invert the result
-  return crc;
 }

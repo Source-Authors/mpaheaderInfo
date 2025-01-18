@@ -19,18 +19,18 @@
 #include "Platform.h"
 
 // static variables
-LPCTSTR CMPAHeader::m_szLayers[] = {_T("Layer I"), _T("Layer II"),
-                                    _T("Layer III")};
-LPCTSTR CMPAHeader::m_szMPEGVersions[] = {_T("MPEG 2.5"), _T(""), _T("MPEG 2"),
-                                          _T("MPEG 1")};
-LPCTSTR CMPAHeader::m_szChannelModes[] = {
+constexpr LPCTSTR CMPAHeader::m_szLayers[] = {_T("Layer I"), _T("Layer II"),
+                                              _T("Layer III")};
+constexpr LPCTSTR CMPAHeader::m_szMPEGVersions[] = {_T("MPEG 2.5"), _T(""),
+                                                    _T("MPEG 2"), _T("MPEG 1")};
+constexpr LPCTSTR CMPAHeader::m_szChannelModes[] = {
     _T("Stereo"), _T("Joint Stereo"), _T("Dual Channel"), _T("Single Channel")};
-LPCTSTR CMPAHeader::m_szEmphasis[] = {_T("None"), _T("50/15ms"), _T(""),
-                                      _T("CCIT J.17")};
+constexpr LPCTSTR CMPAHeader::m_szEmphasis[] = {_T("None"), _T("50/15ms"),
+                                                _T(""), _T("CCIT J.17")};
 
 // sampling rates in hertz: 1. index = MPEG Version ID, 2. index = sampling rate
 // index
-const unsigned CMPAHeader::m_dwSamplingRates[4][3] = {
+constexpr unsigned CMPAHeader::m_dwSamplingRates[4][3] = {
     {
         11025,
         12000,
@@ -50,117 +50,117 @@ const unsigned CMPAHeader::m_dwSamplingRates[4][3] = {
 };
 
 // bitrates: 1. index = LSF, 2. index = Layer, 3. index = bitrate index
-const unsigned CMPAHeader::m_dwBitrates[2][3][15] = {{
-                                                         // MPEG 1
+constexpr unsigned CMPAHeader::m_dwBitrates[2][3][15] = {{
+                                                             // MPEG 1
+                                                             {
+                                                                 0,
+                                                                 32,
+                                                                 64,
+                                                                 96,
+                                                                 128,
+                                                                 160,
+                                                                 192,
+                                                                 224,
+                                                                 256,
+                                                                 288,
+                                                                 320,
+                                                                 352,
+                                                                 384,
+                                                                 416,
+                                                                 448,
+                                                             },  // Layer1
+                                                             {
+                                                                 0,
+                                                                 32,
+                                                                 48,
+                                                                 56,
+                                                                 64,
+                                                                 80,
+                                                                 96,
+                                                                 112,
+                                                                 128,
+                                                                 160,
+                                                                 192,
+                                                                 224,
+                                                                 256,
+                                                                 320,
+                                                                 384,
+                                                             },  // Layer2
+                                                             {
+                                                                 0,
+                                                                 32,
+                                                                 40,
+                                                                 48,
+                                                                 56,
+                                                                 64,
+                                                                 80,
+                                                                 96,
+                                                                 112,
+                                                                 128,
+                                                                 160,
+                                                                 192,
+                                                                 224,
+                                                                 256,
+                                                                 320,
+                                                             }  // Layer3
+                                                         },
                                                          {
-                                                             0,
-                                                             32,
-                                                             64,
-                                                             96,
-                                                             128,
-                                                             160,
-                                                             192,
-                                                             224,
-                                                             256,
-                                                             288,
-                                                             320,
-                                                             352,
-                                                             384,
-                                                             416,
-                                                             448,
-                                                         },  // Layer1
-                                                         {
-                                                             0,
-                                                             32,
-                                                             48,
-                                                             56,
-                                                             64,
-                                                             80,
-                                                             96,
-                                                             112,
-                                                             128,
-                                                             160,
-                                                             192,
-                                                             224,
-                                                             256,
-                                                             320,
-                                                             384,
-                                                         },  // Layer2
-                                                         {
-                                                             0,
-                                                             32,
-                                                             40,
-                                                             48,
-                                                             56,
-                                                             64,
-                                                             80,
-                                                             96,
-                                                             112,
-                                                             128,
-                                                             160,
-                                                             192,
-                                                             224,
-                                                             256,
-                                                             320,
-                                                         }  // Layer3
-                                                     },
-                                                     {
-                                                         // MPEG 2, 2.5
-                                                         {
-                                                             0,
-                                                             32,
-                                                             48,
-                                                             56,
-                                                             64,
-                                                             80,
-                                                             96,
-                                                             112,
-                                                             128,
-                                                             144,
-                                                             160,
-                                                             176,
-                                                             192,
-                                                             224,
-                                                             256,
-                                                         },  // Layer1
-                                                         {
-                                                             0,
-                                                             8,
-                                                             16,
-                                                             24,
-                                                             32,
-                                                             40,
-                                                             48,
-                                                             56,
-                                                             64,
-                                                             80,
-                                                             96,
-                                                             112,
-                                                             128,
-                                                             144,
-                                                             160,
-                                                         },  // Layer2
-                                                         {
-                                                             0,
-                                                             8,
-                                                             16,
-                                                             24,
-                                                             32,
-                                                             40,
-                                                             48,
-                                                             56,
-                                                             64,
-                                                             80,
-                                                             96,
-                                                             112,
-                                                             128,
-                                                             144,
-                                                             160,
-                                                         }  // Layer3
-                                                     }};
+                                                             // MPEG 2, 2.5
+                                                             {
+                                                                 0,
+                                                                 32,
+                                                                 48,
+                                                                 56,
+                                                                 64,
+                                                                 80,
+                                                                 96,
+                                                                 112,
+                                                                 128,
+                                                                 144,
+                                                                 160,
+                                                                 176,
+                                                                 192,
+                                                                 224,
+                                                                 256,
+                                                             },  // Layer1
+                                                             {
+                                                                 0,
+                                                                 8,
+                                                                 16,
+                                                                 24,
+                                                                 32,
+                                                                 40,
+                                                                 48,
+                                                                 56,
+                                                                 64,
+                                                                 80,
+                                                                 96,
+                                                                 112,
+                                                                 128,
+                                                                 144,
+                                                                 160,
+                                                             },  // Layer2
+                                                             {
+                                                                 0,
+                                                                 8,
+                                                                 16,
+                                                                 24,
+                                                                 32,
+                                                                 40,
+                                                                 48,
+                                                                 56,
+                                                                 64,
+                                                                 80,
+                                                                 96,
+                                                                 112,
+                                                                 128,
+                                                                 144,
+                                                                 160,
+                                                             }  // Layer3
+                                                         }};
 
 // allowed combination of bitrate (1.index) and mono (2.index)
-const bool CMPAHeader::m_bAllowedModes[15][2] = {
+constexpr bool CMPAHeader::m_bAllowedModes[15][2] = {
     // {stereo, intensity stereo, dual channel allowed,single channel allowed}
     {true, true},   // free mode
     {false, true},  // 32
@@ -180,21 +180,22 @@ const bool CMPAHeader::m_bAllowedModes[15][2] = {
 };
 
 // Samples per Frame: 1. index = LSF, 2. index = Layer
-const unsigned CMPAHeader::m_dwSamplesPerFrames[2][3] = {{
-                                                             // MPEG 1
-                                                             384,   // Layer1
-                                                             1152,  // Layer2
-                                                             1152   // Layer3
-                                                         },
-                                                         {
-                                                             // MPEG 2, 2.5
-                                                             384,   // Layer1
-                                                             1152,  // Layer2
-                                                             576    // Layer3
-                                                         }};
+constexpr unsigned CMPAHeader::m_dwSamplesPerFrames[2][3] = {
+    {
+        // MPEG 1
+        384,   // Layer1
+        1152,  // Layer2
+        1152   // Layer3
+    },
+    {
+        // MPEG 2, 2.5
+        384,   // Layer1
+        1152,  // Layer2
+        576    // Layer3
+    }};
 
 // Samples per Frame / 8
-const unsigned CMPAHeader::m_dwCoefficients[2][3] = {
+constexpr unsigned CMPAHeader::m_dwCoefficients[2][3] = {
     {
         // MPEG 1
         12,   // Layer1	(must be multiplied with 4, because of slot size)
@@ -209,7 +210,7 @@ const unsigned CMPAHeader::m_dwCoefficients[2][3] = {
     }};
 
 // slot size per layer
-const unsigned CMPAHeader::m_dwSlotSizes[3] = {
+constexpr unsigned CMPAHeader::m_dwSlotSizes[3] = {
     4,  // Layer1
     1,  // Layer2
     1   // Layer3
@@ -217,7 +218,7 @@ const unsigned CMPAHeader::m_dwSlotSizes[3] = {
 
 // size of side information (only for Layer III)
 // 1. index = LSF, 2. index = mono
-const unsigned CMPAHeader::m_dwSideInfoSizes[2][2] = {
+constexpr unsigned CMPAHeader::m_dwSideInfoSizes[2][2] = {
     // MPEG 1
     {32, 17},
     // MPEG 2/2.5
@@ -225,10 +226,10 @@ const unsigned CMPAHeader::m_dwSideInfoSizes[2][2] = {
 
 // tolerance range, look at expected offset +/- m_dwTolerance/2 for beginning of
 // a frame
-const unsigned CMPAHeader::m_dwTolerance = 6U;  // +/-3 bytes
+constexpr unsigned CMPAHeader::m_dwTolerance = 6U;  // +/-3 bytes
 
 // max. range where to look for frame sync
-const unsigned CMPAHeader::m_dwMaxRange = 16384U;
+constexpr unsigned CMPAHeader::m_dwMaxRange = 16384U;
 
 // constructor (throws exception if header is invalid)
 // if bExactOffset = true then look for frame at offset +/- tolerance, otherwise
@@ -239,7 +240,7 @@ CMPAHeader::CMPAHeader(CMPAStream* stream, unsigned& offset,
     : m_wBound(32), m_wAllocationTableIndex(0) {
   assert(stream);
 
-  // look for synchronisation
+  // look for synchronization
   unsigned step = 1U;
 
   // is new offset within valid range?
@@ -258,24 +259,22 @@ CMPAHeader::CMPAHeader(CMPAStream* stream, unsigned& offset,
         Init(header, stream->GetFilename());
 
         if (compare_header) {
-          // is this header compatible (which means that it resembles the
-          // previous header
-          if (!(*this == *compare_header))
-            throw CMPAException(CMPAException::ErrorIDs::IncompatibleHeader,
-                                stream->GetFilename());
+          // is this header compatible?
+          // it means it resembles the previous header
+          if (*this != *compare_header)
+            throw CMPAException(
+                CMPAException::Error::IncompatibleHeader, stream->GetFilename(),
+                _T("CMPAHeader ctor"), 0,
+                _T("Subsequent headers have different invariant properties."));
         }
 
         is_header_found = true;
         break;
-      }
-      /*
-      An Exception either means, that a corrupt header was found or
-      that there is no header at the position offset (but there were
-      incidentally the sync bytes found). The distinction between these to
-      errors is made upon the value of bExactOffset
-      */
-      catch (const CMPAException&) {
-        DumpSystemError(_T("Exception at construction of MPAHeader."));
+      } catch (const CMPAException&) {
+        // Exception either means, that a corrupt header was found or there is
+        // no header at the position offset (but there were incidentally the
+        // sync bytes found).  The distinction between these to errors is made
+        // upon the value of bExactOffset.
 
         if (is_exact_offset) throw;
       }
@@ -289,18 +288,20 @@ CMPAHeader::CMPAHeader(CMPAStream* stream, unsigned& offset,
       // check only within dwMaxRange
       if (step > m_dwMaxRange)
         // out of tolerance range
-        throw CMPAException(CMPAException::ErrorIDs::NoFrameInTolerance,
-                            stream->GetFilename());
+        throw CMPAException(CMPAException::Error::NoFrameInTolerance,
+                            stream->GetFilename(), _T("CMPAHeader ctor"), 0,
+                            _T("Header read offset is out of max range."));
 
       step++;
-    }
-    // find the frame at the exact position (or within the tolerance around the
-    // position)
-    else {
+    } else {
+      // find the frame at the exact position (or within the tolerance around
+      // the position)
+
       if (step > m_dwTolerance) {
         // out of tolerance range
-        throw CMPAException(CMPAException::ErrorIDs::NoFrameInTolerance,
-                            stream->GetFilename());
+        throw CMPAException(CMPAException::Error::NoFrameInTolerance,
+                            stream->GetFilename(), _T("CMPAHeader ctor"), 0,
+                            _T("Header read offset is out of max range."));
       }
 
       // look around dwExpectedOffset with increasing steps (+1,-2,+3,-4,...)
@@ -308,6 +309,7 @@ CMPAHeader::CMPAHeader(CMPAStream* stream, unsigned& offset,
         offset += step;
       else
         offset -= step;
+
       step++;
     }
   }
@@ -325,18 +327,21 @@ void CMPAHeader::Init(unsigned char* header, LPCTSTR file_name) {
   assert(file_name);
 
   // get MPEG version [bit 11,12]
-  m_Version =
-      (MPAVersion)((header[1] >> 3) & 0x03U);  // mask only the rightmost 2 bits
-
+  // mask only the rightmost 2 bits
+  m_Version = (MPAVersion)((header[1] >> 3) & 0x03U);
   if (m_Version == MPAVersion::MPEGReserved)
-    throw CMPAException(CMPAException::ErrorIDs::HeaderCorrupt, file_name);
+    throw CMPAException(CMPAException::Error::HeaderCorrupt, file_name,
+                        _T("CMPAHeader::Init"), 0,
+                        _T("Header version is reserved."));
 
   m_bLSF = m_Version != MPAVersion::MPEG1;
 
   // get layer (0 = layer1, 2 = layer2, ...)  [bit 13,14]
   m_Layer = (MPALayer)(3 - ((header[1] >> 1) & 0x03U));
   if (m_Layer == MPALayer::LayerReserved)
-    throw CMPAException(CMPAException::ErrorIDs::HeaderCorrupt, file_name);
+    throw CMPAException(CMPAException::Error::HeaderCorrupt, file_name,
+                        _T("CMPAHeader::Init"), 0,
+                        _T("Header layer is reserved."));
 
   // protection bit (inverted) [bit 15]
   m_bCRC = !((header[1]) & 0x01);
@@ -344,19 +349,24 @@ void CMPAHeader::Init(unsigned char* header, LPCTSTR file_name) {
   // bitrate [bit 16..19]
   unsigned char bBitrateIndex = (unsigned char)((header[2] >> 4) & 0x0F);
   if (bBitrateIndex == 0x0F)  // all bits set is reserved
-    throw CMPAException(CMPAException::ErrorIDs::HeaderCorrupt);
+    throw CMPAException(CMPAException::Error::HeaderCorrupt, file_name,
+                        _T("CMPAHeader::Init"), 0,
+                        _T("Header bitrate is invalid (0x0F)."));
 
-  m_dwBitrate = m_dwBitrates[m_bLSF][static_cast<int>(m_Layer)][bBitrateIndex] *
-                1000U;  // convert from kbit to bit
-
+  // convert from kbit to bit
+  m_dwBitrate =
+      m_dwBitrates[m_bLSF][static_cast<int>(m_Layer)][bBitrateIndex] * 1000U;
   if (m_dwBitrate == 0)  // means free bitrate (is unsupported yet)
-    throw CMPAException(CMPAException::ErrorIDs::FreeBitrate, file_name);
+    throw CMPAException(
+        CMPAException::Error::FreeBitrate, file_name, _T("CMPAHeader::Init"), 0,
+        _T("Header has free bitrate (0) which is not supported."));
 
   // sampling rate [bit 20,21]
   unsigned char bIndex = (unsigned char)((header[2] >> 2U) & 0x03U);
-
   if (bIndex == 0x03U)  // all bits set is reserved
-    throw CMPAException(CMPAException::ErrorIDs::HeaderCorrupt, file_name);
+    throw CMPAException(CMPAException::Error::HeaderCorrupt, file_name,
+                        _T("CMPAHeader::Init"), 0,
+                        _T("Header sampling rate (0x03) is invalid."));
 
   m_dwSamplesPerSec = m_dwSamplingRates[static_cast<int>(m_Version)][bIndex];
 
@@ -386,14 +396,19 @@ void CMPAHeader::Init(unsigned char* header, LPCTSTR file_name) {
   // emphasis [bit 30,31]
   m_Emphasis = (Emphasis)((header[3]) & 0x03U);
   if (m_Emphasis == Emphasis::EmphReserved)
-    throw CMPAException(CMPAException::ErrorIDs::HeaderCorrupt, file_name);
+    throw CMPAException(CMPAException::Error::HeaderCorrupt, file_name,
+                        _T("CMPAHeader::Init"), 0,
+                        _T("Header emphasis is reserved."));
 
   // extended check for Layer II
   if (m_Layer == MPALayer::Layer2) {
     // MPEG 1
     if (m_Version == MPAVersion::MPEG1) {
       if (!m_bAllowedModes[bBitrateIndex][IsMono()])
-        throw CMPAException(CMPAException::ErrorIDs::HeaderCorrupt, file_name);
+        throw CMPAException(CMPAException::Error::HeaderCorrupt, file_name,
+                            _T("CMPAHeader::Init"), 0,
+                            _T("Header is MPEG1 and has no allowed ")
+                            _T("combination of bitrate and mono properties."));
 
       // which allocation table is used
       switch (m_dwBitrate / 1000 / (IsMono() ? 1 : 2)) {
@@ -431,21 +446,17 @@ void CMPAHeader::Init(unsigned char* header, LPCTSTR file_name) {
 // compare headers
 // return true if identical or related
 // return false if no similarities
-
-bool CMPAHeader::operator==(CMPAHeader& DestHeader) const {
+bool CMPAHeader::operator==(const CMPAHeader& other) const {
   // version change never possible
-  if (DestHeader.m_Version != m_Version) return false;
-
+  if (other.m_Version != m_Version) return false;
   // layer change never possible
-  if (DestHeader.m_Layer != m_Layer) return false;
-
+  if (other.m_Layer != m_Layer) return false;
   // sampling rate change never possible
-  if (DestHeader.m_dwSamplesPerSec != m_dwSamplesPerSec) return false;
-
+  if (other.m_dwSamplesPerSec != m_dwSamplesPerSec) return false;
   // from mono to stereo never possible
-  if (DestHeader.IsMono() != IsMono()) return false;
+  if (other.IsMono() != IsMono()) return false;
 
-  if (DestHeader.m_Emphasis != m_Emphasis) return false;
+  if (other.m_Emphasis != m_Emphasis) return false;
 
   return true;
 }

@@ -15,6 +15,6 @@
 #include "MPAEndOfFileException.h"
 
 CMPAEndOfFileException::CMPAEndOfFileException(LPCTSTR szFile)
-    : CMPAException{CMPAException::ErrorIDs::EndOfFile, szFile} {}
+    : CMPAException{CMPAException::Error::EndOfFile, szFile} {}
 
 CMPAEndOfFileException::~CMPAEndOfFileException() {}

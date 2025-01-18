@@ -5,7 +5,7 @@
 #define IDM_ABOUTBOX                    0x0010
 #define IDS_ABOUTBOX                    101
 #define IDD_MPEGAUDIOINFO_DIALOG        102
-#define IDR_MAINFRAME                   128
+#define SRC_IDI_APP_MAIN                128
 #define IDD_ABOUTBOX                    129
 #define IDC_OPENFILE                    1000
 #define IDC_OUTPUT                      1001
@@ -25,6 +25,8 @@
 #define IDC_ABOUT                       1015
 #define IDC_BUTTON2                     1017
 #define IDC_OPENDIR                     1017
+
+#define SRC_PRODUCT_FILE_DESCRIPTION_STRING   "Shows information about MPEG audio files"
 
 // Next default values for new objects
 // 

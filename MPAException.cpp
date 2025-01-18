@@ -15,53 +15,62 @@
 #include "Platform.h"
 #include "MPAException.h"
 
-/// CMPAException: exception class
-//////////////////////////////////////////////
+namespace {
 
-CMPAException::CMPAException(ErrorIDs ErrorID, LPCTSTR szFile,
-                             LPCTSTR szFunction, bool bGetLastError)
-    : m_ErrorID(ErrorID),
-      m_bGetLastError(bGetLastError),
-      m_szErrorMsg(nullptr) {
-  m_szFile = strdup(szFile);
-  m_szFunction = strdup(szFunction);
+// AddressSanitizer expects non-nullptr in strdup, so wrap it.
+char* mpa_strdup(const char* source) {
+  return source ? strdup(source) : nullptr;
+}
+
+}  // namespace
+
+CMPAException::CMPAException(Error id, LPCTSTR file, LPCTSTR function,
+                             int last_error, LPCTSTR context)
+    : m_id(id), m_last_error(last_error), m_error_msg(nullptr) {
+  m_file = mpa_strdup(file);
+  m_function = mpa_strdup(function);
+  m_context = mpa_strdup(context);
 }
 
 // copy constructor (necessary for exception throwing without pointers)
-CMPAException::CMPAException(const CMPAException& Source) {
-  m_ErrorID = Source.m_ErrorID;
-  m_bGetLastError = Source.m_bGetLastError;
-  m_szFile = strdup(Source.m_szFile);
-  m_szFunction = strdup(Source.m_szFunction);
-  if (Source.m_szErrorMsg) {
-    const size_t maxSize = strlen(Source.m_szErrorMsg) + 1;
-    m_szErrorMsg = new char[maxSize];
-    strcpy(m_szErrorMsg, Source.m_szErrorMsg);
+CMPAException::CMPAException(const CMPAException& s) {
+  m_id = s.m_id;
+  m_last_error = s.m_last_error;
+  m_file = mpa_strdup(s.m_file);
+  m_function = mpa_strdup(s.m_function);
+  m_context = mpa_strdup(s.m_context);
+
+  if (s.m_error_msg) {
+    const size_t maxSize = strlen(s.m_error_msg) + 1;
+    m_error_msg = new char[maxSize];
+    strcpy(m_error_msg, s.m_error_msg);
   } else {
-    m_szErrorMsg = nullptr;
+    m_error_msg = nullptr;
   }
 }
 
-CMPAException& CMPAException::operator=(CMPAException Source) {
-  std::swap(m_ErrorID, Source.m_ErrorID);
-  std::swap(m_bGetLastError, Source.m_bGetLastError);
-  std::swap(m_szFunction, Source.m_szFunction);
-  std::swap(m_szFile, Source.m_szFile);
-  std::swap(m_szErrorMsg, Source.m_szErrorMsg);
+CMPAException& CMPAException::operator=(CMPAException s) {
+  std::swap(m_id, s.m_id);
+  std::swap(m_last_error, s.m_last_error);
+  std::swap(m_function, s.m_function);
+  std::swap(m_file, s.m_file);
+  std::swap(m_error_msg, s.m_error_msg);
+  std::swap(m_context, s.m_context);
 
   return *this;
 }
 
 // destructor
 CMPAException::~CMPAException() {
-  free(m_szFile);
-  free(m_szFunction);
-  delete[] m_szErrorMsg;
+  delete[] m_error_msg;
+  free(m_context);
+  free(m_function);
+  free(m_file);
 }
 
 // should be in resource file for multi language applications
-LPCTSTR CMPAException::m_szErrors[static_cast<int>(
-    CMPAException::ErrorIDs::NumIDs)] = {
+constexpr LPCTSTR CMPAException::m_error_id_2_msg[static_cast<int>(
+    CMPAException::Error::MaxError)] = {
     _T("Can't open the file."),
     _T("Can't set file position."),
     _T("Can't read from file."),
@@ -69,29 +78,26 @@ LPCTSTR CMPAException::m_szErrors[static_cast<int>(
     _T("Incomplete VBR Header."),
     _T("No frame found within tolerance range."),
     _T("No frame found before end of file was reached."),
-    _T("Header corrupt"),
-    _T("Free Bitrate currently not supported"),
-    _T("Incompatible Header"),
-    _T("Corrupt Lyrics3 Tag")};
+    _T("Header is corrupt."),
+    _T("Free Bitrate currently not supported."),
+    _T("Incompatible Header."),
+    _T("Corrupt Lyrics3 Tag.")};
 
-constexpr unsigned MAX_ERR_LENGTH{256};
+LPCTSTR CMPAException::GetErrorDescription() const {
+  constexpr unsigned MAX_ERR_LENGTH{256};
 
-LPCTSTR CMPAException::GetErrorDescription() {
-  if (!m_szErrorMsg) {
-    m_szErrorMsg = new char[MAX_ERR_LENGTH];
-    m_szErrorMsg[0] = '\0';
-
-    char help[MAX_ERR_LENGTH];
-
-    snprintf(help, MAX_ERR_LENGTH, "%s: '%s'\n%s\n%s",
-             m_szFunction ? m_szFunction : "N/A", m_szFile ? m_szFile : "N/A",
-             m_szErrors[static_cast<int>(m_ErrorID)],
-             m_bGetLastError
-                 ? std::system_category().message(GetLastSystemError()).c_str()
-                 : "N/A");
+  if (!m_error_msg) {
+    m_error_msg = new char[MAX_ERR_LENGTH];
+    snprintf(m_error_msg, MAX_ERR_LENGTH,
+             "At %s for '%s'\n\n%s\n%s\n\nSystem error: %s",
+             m_function ? m_function : "N/A", m_file ? m_file : "N/A",
+             m_error_id_2_msg[static_cast<int>(m_id)],
+             m_context ? m_context : "N/A",
+             m_last_error ? std::system_category().message(m_last_error).c_str()
+                          : "N/A");
     // make sure string is null-terminated
-    m_szErrorMsg[MAX_ERR_LENGTH - 1] = '\0';
+    m_error_msg[MAX_ERR_LENGTH - 1] = '\0';
   }
 
-  return m_szErrorMsg;
+  return m_error_msg;
 }

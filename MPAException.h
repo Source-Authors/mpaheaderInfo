@@ -16,7 +16,7 @@
 // exception class
 class CMPAException {
  public:
-  enum class ErrorIDs {
+  enum class Error {
     ErrOpenFile,
     ErrSetPosition,
     ErrReadFile,
@@ -28,27 +28,32 @@ class CMPAException {
     FreeBitrate,
     IncompatibleHeader,
     CorruptLyricsTag,
-    NumIDs  // this specifies the total number of possible IDs
+    // this specifies the total number of possible IDs
+    MaxError
   };
 
-  CMPAException(ErrorIDs ErrorID, LPCTSTR szFile = nullptr,
-                LPCTSTR szFunction = nullptr, bool bGetLastError = false);
+  explicit CMPAException(Error id, LPCTSTR file = nullptr,
+                         LPCTSTR function = nullptr, int last_error = 0,
+                         LPCTSTR context = nullptr);
   // copy constructor (necessary because of LPSTR members)
-  CMPAException(const CMPAException& Source);
-  CMPAException& operator=(CMPAException Source);
+  CMPAException(const CMPAException& s);
+  CMPAException& operator=(CMPAException s);
+
   virtual ~CMPAException();
 
-  ErrorIDs GetErrorID() const { return m_ErrorID; };
-  LPCTSTR GetErrorDescription();
+  Error GetError() const { return m_id; };
+  LPCTSTR GetErrorDescription() const;
 
  private:
-  ErrorIDs m_ErrorID;
-  bool m_bGetLastError;
-  LPTSTR m_szFunction;
-  LPTSTR m_szFile;
-  LPTSTR m_szErrorMsg;
+  Error m_id;
+  int m_last_error;
+  LPTSTR m_function;
+  LPTSTR m_file;
+  mutable LPTSTR m_error_msg;
+  LPTSTR m_context;
 
-  static LPCTSTR m_szErrors[static_cast<int>(CMPAException::ErrorIDs::NumIDs)];
+  static const LPCTSTR
+      m_error_id_2_msg[static_cast<int>(CMPAException::Error::MaxError)];
 };
 
 #endif  // !MPA_HEADER_INFO_MPA_EXCEPTION_H_

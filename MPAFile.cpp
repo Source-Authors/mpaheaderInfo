@@ -133,7 +133,6 @@ CMPAFrame* CMPAFile::GetFrame(CMPAFile::GetType Type, CMPAFrame* frame,
     new_frame =
         new CMPAFrame(m_pStream, offset, is_subsequent_frame, is_exact_offset,
                       should_reverse, comparison_header);
-
   } catch (CMPAException& e) {
     // try a complete resync from position offset
     if (Type == GetType::Next) {

@@ -14,6 +14,7 @@
 
 #include "MPAFileStream.h"
 
+#include "Platform.h"
 #include "MPAException.h"
 #include "MPAEndOfFileException.h"
 
@@ -27,8 +28,9 @@ CMPAFileStream::CMPAFileStream(LPCTSTR file_name)
   m_hFile = fopen(file_name, "rb");
 
   if (!m_hFile) {
-    throw CMPAException{CMPAException::ErrorIDs::ErrOpenFile, file_name,
-                        _T("CreateFile"), true};
+    throw CMPAException{CMPAException::Error::ErrOpenFile, file_name,
+                        _T("CMPAFileStream ctor (fopen)"), GetLastSystemError(),
+                        _T("Unable to open file in read mode.")};
   }
 
   m_bMustReleaseFile = true;
@@ -64,8 +66,9 @@ void CMPAFileStream::SetPosition(unsigned offset) const {
   const int result = fseek(m_hFile, offset, SEEK_SET);
 
   if (result != 0) {
-    throw CMPAException{CMPAException::ErrorIDs::ErrSetPosition, m_szFile,
-                        _T("fseek"), true};
+    throw CMPAException{CMPAException::Error::ErrSetPosition, m_szFile,
+                        _T("CMPAFileStream::SetPosition (fseek)"),
+                        GetLastSystemError()};
   }
 }
 
@@ -93,14 +96,16 @@ unsigned char* CMPAFileStream::ReadBytes(unsigned size, unsigned& offset,
 unsigned CMPAFileStream::GetSize() const {
   const long start_pos{ftell(m_hFile)};
   if (start_pos == -1L) {
-    throw CMPAException{CMPAException::ErrorIDs::ErrReadFile, m_szFile,
-                        _T("ftell"), true};
+    throw CMPAException{CMPAException::Error::ErrReadFile, m_szFile,
+                        _T("CMPAFileStream::GetSize (ftell)"),
+                        GetLastSystemError()};
   }
 
   if (fseek(m_hFile, 0L, SEEK_END)) {
     fseek(m_hFile, start_pos, SEEK_SET);
-    throw CMPAException{CMPAException::ErrorIDs::ErrReadFile, m_szFile,
-                        _T("fseek"), true};
+    throw CMPAException{CMPAException::Error::ErrReadFile, m_szFile,
+                        _T("CMPAFileStream::GetSize (fseek)"),
+                        GetLastSystemError()};
   }
 
 #ifdef _WIN32
@@ -111,22 +116,24 @@ unsigned CMPAFileStream::GetSize() const {
   const long size{ftell(m_hFile)};
 
   if (size == -1L) {
-    throw CMPAException{CMPAException::ErrorIDs::ErrReadFile, m_szFile,
-                        _T("ftell"), true};
+    throw CMPAException{CMPAException::Error::ErrReadFile, m_szFile,
+                        _T("CMPAFileStream::GetSize (ftell)"),
+                        GetLastSystemError()};
   }
 #else
   // https://wiki.sei.cmu.edu/confluence/display/c/FIO19-C.+Do+not+use+fseek()+and+ftell()+to+compute+the+size+of+a+regular+file
   const long size{ftello(m_hFile)};
 
   if (size == -1L) {
-    throw CMPAException{CMPAException::ErrorIDs::ErrReadFile, m_szFile,
-                        _T("ftello"), true};
+    throw CMPAException{CMPAException::Error::ErrReadFile, m_szFile,
+                        _T("CMPAFileStream::GetSize (ftello)"),
+                        GetLastSystemError()};
   }
 #endif
 
   if (fseek(m_hFile, start_pos, SEEK_SET)) {
-    throw CMPAException{CMPAException::ErrorIDs::ErrReadFile, m_szFile,
-                        _T("fseek"), true};
+    throw CMPAException{CMPAException::Error::ErrReadFile, m_szFile,
+                        _T("CMPAFileStream::GetSize (fseek)"), GetLastSystemError()};
   }
 
   return size;
@@ -172,8 +179,8 @@ unsigned CMPAFileStream::Read(void* data, unsigned offset,
 
   const size_t bytes_read = fread(data, 1, size, m_hFile);
   if (bytes_read < size && ferror(m_hFile))
-    throw CMPAException{CMPAException::ErrorIDs::ErrReadFile, m_szFile,
-                        _T("fread"), true};
+    throw CMPAException{CMPAException::Error::ErrReadFile, m_szFile,
+                        _T("CMPAFileStream::Read (fread)"), GetLastSystemError()};
 
   // Safe as size is unsigned.
   return static_cast<unsigned>(bytes_read);

@@ -28,4 +28,4 @@ public:
 	DECLARE_MESSAGE_MAP()
 };
 
-extern CMPEGAudioInfoApp theApp;
+extern CMPEGAudioInfoApp app;

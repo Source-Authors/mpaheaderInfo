@@ -399,3 +399,6 @@ FodyWeavers.xsd
 
 # CMake artefacts
 out/
+
+# Resource compiler artefacts
+RC[a-z0-9]*

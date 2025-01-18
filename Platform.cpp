@@ -27,8 +27,10 @@ int GetLastSystemError() {
 
 void DumpSystemError(const char* error) {
 #ifdef _WIN32
-  ::MessageBox(NULL, error, _T("MPAFile Error"),
-               MB_OK | MB_ICONERROR);
+  ::OutputDebugString(error);
+
+  ::MessageBox(NULL, error, _T("Mpeg Audio Info Error"),
+               MB_OK | MB_ICONERROR | MB_TASKMODAL);
 #else
   fprintf(stderr, "mp3: %s\n", error);
 #endif

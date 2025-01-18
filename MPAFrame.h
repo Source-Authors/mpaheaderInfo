@@ -21,7 +21,7 @@
 
 class CMPAFrame {
  public:
-  CMPAFrame(CMPAStream* stream, unsigned& offset, bool bFindSubsequentFrame,
+  CMPAFrame(CMPAStream* stream, unsigned& offset, bool bFindNextFrame,
             bool bExactOffset, bool bReverse, CMPAHeader* pCompareHeader);
   ~CMPAFrame();
 
@@ -42,7 +42,6 @@ class CMPAFrame {
 
  private:
   static const unsigned m_dwProtectedBitsLayer2[5][2];
-  static unsigned short CalcCRC16(unsigned char* pBuffer, unsigned dwSize);
 
   bool m_bIsLast;  // true, if it is last frame
 };

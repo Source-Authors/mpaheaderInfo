@@ -62,7 +62,7 @@ CLyrics3Tag::CLyrics3Tag(CMPAStream* stream, unsigned offset, bool version_2)
 
     while (memcmp("LYRICSBEGIN", buffer, 11U) != 0) {
       if (offset >= m_dwOffset)
-        throw CMPAException{CMPAException::ErrorIDs::CorruptLyricsTag};
+        throw CMPAException{CMPAException::Error::CorruptLyricsTag};
     }
 
     m_dwSize = offset - m_dwOffset + 9U;

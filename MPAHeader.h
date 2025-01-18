@@ -24,8 +24,8 @@ class CMPAHeader {
              bool bReverse, CMPAHeader* pCompareHeader);
   ~CMPAHeader() = default;
 
-  [[nodiscard]] bool operator==(CMPAHeader& DestHeader) const;
-  [[nodiscard]] bool operator!=(CMPAHeader& DestHeader) const {
+  [[nodiscard]] bool operator==(const CMPAHeader& DestHeader) const;
+  [[nodiscard]] bool operator!=(const CMPAHeader& DestHeader) const {
     return !(*this == DestHeader);
   }
 
@@ -72,21 +72,21 @@ class CMPAHeader {
   void Init(unsigned char* pHeader, LPCTSTR file_name);
 
  public:
-  static LPCTSTR m_szLayers[];
-  static LPCTSTR m_szMPEGVersions[];
-  static LPCTSTR m_szChannelModes[];
-  static LPCTSTR m_szEmphasis[];
+  static const LPCTSTR m_szLayers[];
+  static const LPCTSTR m_szMPEGVersions[];
+  static const LPCTSTR m_szChannelModes[];
+  static const LPCTSTR m_szEmphasis[];
 
   enum class MPAVersion { MPEG25 = 0, MPEGReserved, MPEG2, MPEG1 };
   MPAVersion m_Version;
 
-  enum class MPALayer { Layer1, Layer2, Layer3, LayerReserved };
+  enum class MPALayer { Layer1 = 0, Layer2, Layer3, LayerReserved };
   MPALayer m_Layer;
 
   enum class Emphasis { EmphNone = 0, Emph5015, EmphReserved, EmphCCITJ17 };
   Emphasis m_Emphasis;
 
-  enum class ChannelMode { Stereo, JointStereo, DualChannel, SingleChannel };
+  enum class ChannelMode { Stereo = 0, JointStereo, DualChannel, SingleChannel };
   ChannelMode m_ChannelMode;
 
   unsigned m_dwSamplesPerSec;

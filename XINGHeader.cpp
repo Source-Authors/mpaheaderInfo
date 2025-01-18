@@ -31,7 +31,6 @@ CXINGHeader* CXINGHeader::FindHeader(const CMPAFrame* frame) {
   // where does VBR header begin (XING)
   const unsigned offset{frame->m_dwOffset + MPA_HEADER_SIZE +
                         frame->m_pHeader->GetSideInfoSize()};
-  // + (frame->m_pHeader->m_bCRC?2:0);
 
   // check for XING header first
   if (!CheckID(frame->m_pStream, offset, 'X', 'i', 'n', 'g') &&

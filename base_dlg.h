@@ -10,31 +10,28 @@
 // and conditions of version 3 of the GNU General Public License, supplemented
 // by the additional permissions listed below.
 
-#ifndef MPA_HEADER_INFO_ABOUT_DLG_H_
-#define MPA_HEADER_INFO_ABOUT_DLG_H_
+#ifndef MPA_HEADER_INFO_BASE_DLG_H_
+#define MPA_HEADER_INFO_BASE_DLG_H_
 
-#include "base_dlg.h"
-#include "resource.h"
+#include "dpi_wnd_behavior.h"
 
-// About dialog.
-class AboutDlg : public CBaseDlg {
-  DECLARE_DYNAMIC(AboutDlg)
+class CBaseDlg : public CDialog {
+  DECLARE_DYNAMIC(CBaseDlg)
 
  public:
-  explicit AboutDlg(CWnd* parent = nullptr);
-  virtual ~AboutDlg();
-
-  // Dialog Data
-  enum { IDD = IDD_ABOUTBOX };
+  CBaseDlg();
+  explicit CBaseDlg(LPCTSTR lpszTemplateName, CWnd* pParentWnd = nullptr);
+  explicit CBaseDlg(UINT nIDTemplate, CWnd* pParentWnd = nullptr);
+  virtual ~CBaseDlg();
 
  protected:
-  void DoDataExchange(CDataExchange* de) override;
   BOOL OnInitDialog() override;
 
+  afx_msg void OnDestroy();
+  afx_msg LRESULT OnDpiChanged(WPARAM wParam, LPARAM lParam);
   DECLARE_MESSAGE_MAP()
 
- private:
-  HICON m_hIcon;
+  DpiWindowBehavior m_dpi_behavior;
 };
 
-#endif  // !MPA_HEADER_INFO_ABOUT_DLG_H_
+#endif  // !MPA_HEADER_INFO_BASE_DLG_H_
