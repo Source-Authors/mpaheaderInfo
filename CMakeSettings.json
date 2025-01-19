@@ -10,13 +10,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "SA_MPA_BUILD_WITHOUT_ATL",
-          "value": "false",
-          "type": "BOOL"
-        }
-      ]
+      "variables": []
     }
   ]
 }

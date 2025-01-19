@@ -49,13 +49,13 @@ if (NOT DEFINED PACKAGE_VERSION)
   message(STATUS "[common]: Extracting Git software version.")
 
   if ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
-    execute_process(COMMAND cmd /c "git rev-list --branches HEAD | find /v " " /c" OUTPUT_VARIABLE NVTS_GIT_VERSION WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    execute_process(COMMAND cmd /c "git rev-list --branches HEAD | find /v " " /c" OUTPUT_VARIABLE SA_MPA_GIT_VERSION WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
   else()
-    execute_process(COMMAND bash "-c" "git rev-list --branches HEAD | wc -l | tr -d ' ' | tr -d '\n'" OUTPUT_VARIABLE NVTS_GIT_VERSION WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    execute_process(COMMAND bash "-c" "git rev-list --branches HEAD | wc -l | tr -d ' ' | tr -d '\n'" OUTPUT_VARIABLE SA_MPA_GIT_VERSION WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
   endif()
 
   set(PACKAGE_VER_PATCH 0)
-  math(EXPR PACKAGE_VER_TWEAK ${NVTS_GIT_VERSION})
+  math(EXPR PACKAGE_VER_TWEAK ${SA_MPA_GIT_VERSION})
   message(STATUS
     "[common]: Build version from Git (patch.tweak): ${PACKAGE_VER_PATCH}.${PACKAGE_VER_TWEAK}.")
 
@@ -227,7 +227,7 @@ if(NOT SA_MPA_BUILD_WITHOUT_ATL)
     ${SA_MPA_ROOT_DIR}/build/win/manifests/enable-visual-styles.manifest.cmake.in
     ${SA_MPA_BINARY_DIR}/manifests/enable-visual-styles.manifest
   )
-endif ()
+endif()
 
 # https://github.com/izenecloud/cmake/blob/master/SetCompilerWarningAll.cmake
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -240,6 +240,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   endif(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
 
   if(SA_MPA_ENABLE_ASAN)
+    message(STATUS "[options]: ASAN enabled.")
+
     # Use AddressSanitizer
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fsanitize=address")
   endif()
@@ -269,6 +271,8 @@ else(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
 
   if(SA_MPA_ENABLE_ASAN)
+    message(STATUS "[options]: ASAN enabled.")
+
     # Use AddressSanitizer
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
   endif()
