@@ -16,6 +16,7 @@
 #include "mpafile.h"
 #include "base_dlg.h"
 #include "resource.h"
+#include "StdioMPAFileSystem.h"
 
 // MPEG Audio Info dialog.
 class MpegAudioInfoDlg : public CBaseDlg {
@@ -32,6 +33,7 @@ class MpegAudioInfoDlg : public CBaseDlg {
  private:
   HICON m_hIcon;
   CMPAFile* m_mpa_file;
+  StdioMPAFileSystem m_mpa_file_system;
   CMPAFrame* m_frame;  // current frame
   unsigned int m_frame_no;
 

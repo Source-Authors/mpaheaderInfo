@@ -21,11 +21,11 @@
 // 1KB is initial buffersize
 const unsigned CMPAFileStream::INIT_BUFFERSIZE = 1024U;
 
-CMPAFileStream::CMPAFileStream(LPCTSTR file_name)
+CMPAFileStream::CMPAFileStream(LPCTSTR file_name, IMPAFileSystem *file_system)
     : CMPAStream(file_name), m_dwOffset(0) {
   // open with CreateFile (no limitation of 128byte filename length, like in
   // mmioOpen)
-  m_hFile = fopen(file_name, "rb");
+  m_hFile = file_system->Open(file_name, "rb");
 
   if (!m_hFile) {
     throw CMPAException{CMPAException::Error::ErrOpenFile, file_name,
@@ -33,13 +33,11 @@ CMPAFileStream::CMPAFileStream(LPCTSTR file_name)
                         _T("Unable to open file in read mode.")};
   }
 
-  m_bMustReleaseFile = true;
   Init();
 }
 
-CMPAFileStream::CMPAFileStream(LPCTSTR file_name, FILE* hFile)
-    : CMPAStream(file_name), m_hFile(hFile), m_dwOffset(0) {
-  m_bMustReleaseFile = false;
+CMPAFileStream::CMPAFileStream(LPCTSTR file_name, std::unique_ptr<IMPAFile> &&hFile)
+    : CMPAStream(file_name), m_hFile(std::move(hFile)), m_dwOffset(0) {
   Init();
 }
 
@@ -53,17 +51,11 @@ void CMPAFileStream::Init() {
 
 CMPAFileStream::~CMPAFileStream() {
   delete[] m_pBuffer;
-
-  // close file
-  if (m_bMustReleaseFile) {
-    fclose(m_hFile);
-    m_hFile = nullptr;
-  }
 }
 
 // set file position
 void CMPAFileStream::SetPosition(unsigned offset) const {
-  const int result = fseek(m_hFile, offset, SEEK_SET);
+  const int result = m_hFile->Seek(offset, MPAFileSeekType::kSet);
 
   if (result != 0) {
     throw CMPAException{CMPAException::Error::ErrSetPosition, m_szFile,
@@ -94,44 +86,33 @@ unsigned char* CMPAFileStream::ReadBytes(unsigned size, unsigned& offset,
 }
 
 unsigned CMPAFileStream::GetSize() const {
-  const long start_pos{ftell(m_hFile)};
+  const long start_pos{m_hFile->Tell()};
   if (start_pos == -1L) {
     throw CMPAException{CMPAException::Error::ErrReadFile, m_szFile,
                         _T("CMPAFileStream::GetSize (ftell)"),
                         GetLastSystemError()};
   }
 
-  if (fseek(m_hFile, 0L, SEEK_END)) {
-    fseek(m_hFile, start_pos, SEEK_SET);
+  if (m_hFile->Seek(0L, MPAFileSeekType::kEnd)) {
+    (void)m_hFile->Seek(start_pos, MPAFileSeekType::kSet);
     throw CMPAException{CMPAException::Error::ErrReadFile, m_szFile,
                         _T("CMPAFileStream::GetSize (fseek)"),
                         GetLastSystemError()};
   }
 
-#ifdef _WIN32
   // ftell and _ftelli64 return the current file position.
   // The value returned by ftell and _ftelli64 may not reflect the physical byte
   // offset for streams opened in text mode, because text mode causes carriage
   // return-line feed translation.
-  const long size{ftell(m_hFile)};
+  const long size{m_hFile->Tell()};
 
   if (size == -1L) {
     throw CMPAException{CMPAException::Error::ErrReadFile, m_szFile,
                         _T("CMPAFileStream::GetSize (ftell)"),
                         GetLastSystemError()};
   }
-#else
-  // https://wiki.sei.cmu.edu/confluence/display/c/FIO19-C.+Do+not+use+fseek()+and+ftell()+to+compute+the+size+of+a+regular+file
-  const long size{ftello(m_hFile)};
 
-  if (size == -1L) {
-    throw CMPAException{CMPAException::Error::ErrReadFile, m_szFile,
-                        _T("CMPAFileStream::GetSize (ftello)"),
-                        GetLastSystemError()};
-  }
-#endif
-
-  if (fseek(m_hFile, start_pos, SEEK_SET)) {
+  if (m_hFile->Seek(start_pos, MPAFileSeekType::kSet)) {
     throw CMPAException{CMPAException::Error::ErrReadFile, m_szFile,
                         _T("CMPAFileStream::GetSize (fseek)"), GetLastSystemError()};
   }
@@ -177,8 +158,8 @@ unsigned CMPAFileStream::Read(void* data, unsigned offset,
   // set position first
   SetPosition(offset);
 
-  const size_t bytes_read = fread(data, 1, size, m_hFile);
-  if (bytes_read < size && ferror(m_hFile))
+  const size_t bytes_read = m_hFile->Read(data, size);
+  if (bytes_read < size && m_hFile->Error())
     throw CMPAException{CMPAException::Error::ErrReadFile, m_szFile,
                         _T("CMPAFileStream::Read (fread)"), GetLastSystemError()};
 

@@ -306,6 +306,8 @@ target_sources(${PACKAGE_NAME}
     MPAException.cpp
     MPAFile.cpp
     MPAFileStream.cpp
+    MPAFileSystem.cpp
+    StdioMPAFileSystem.cpp
     MPAFrame.cpp
     MPAHeader.cpp
     MPAStream.cpp
@@ -328,6 +330,8 @@ target_sources(${PACKAGE_NAME}
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/MPAException.h>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/MPAFile.h>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/MPAFileStream.h>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/MPAFileSystem.h>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/StdioMPAFileSystem.h>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/MPAFrame.h>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/MPAHeader.h>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/MPAStream.h>

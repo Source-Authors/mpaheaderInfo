@@ -20,7 +20,7 @@
 
 class CMPAFile {
  public:
-  explicit CMPAFile(LPCTSTR szFile);
+  CMPAFile(LPCTSTR szFile, IMPAFileSystem *file_system);
   ~CMPAFile();
 
   [[nodiscard]] unsigned GetBegin() const { return m_pTags->GetBegin(); };

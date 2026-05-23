@@ -17,8 +17,8 @@
 #include "MPAException.h"
 #include "Platform.h"
 
-CMPAFile::CMPAFile(LPCTSTR file) {
-  m_pStream = new CMPAFileStream(file);
+CMPAFile::CMPAFile(LPCTSTR file, IMPAFileSystem *file_system) {
+  m_pStream = new CMPAFileStream(file, file_system);
   m_pTags = new CTags(m_pStream);
 
   unsigned offset{0};

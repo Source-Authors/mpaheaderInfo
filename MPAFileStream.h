@@ -16,21 +16,21 @@
 #include <cstdio>  // FILE
 
 #include "MPAStream.h"
+#include "MPAFileSystem.h"
 
 using HANDLE = void*;
 
 class CMPAFileStream : public CMPAStream {
  public:
-  explicit CMPAFileStream(LPCTSTR file_name);
-  CMPAFileStream(LPCTSTR file_name, FILE* hFile);
+  CMPAFileStream(LPCTSTR file_name, IMPAFileSystem* file_system);
+  CMPAFileStream(LPCTSTR file_name, std::unique_ptr<IMPAFile>&& hFile);
 
   virtual ~CMPAFileStream();
 
  private:
   static const unsigned INIT_BUFFERSIZE;
 
-  FILE* m_hFile;
-  bool m_bMustReleaseFile;
+  std::unique_ptr<IMPAFile> m_hFile;
 
   // concerning read-buffer
   mutable unsigned char* m_pBuffer;

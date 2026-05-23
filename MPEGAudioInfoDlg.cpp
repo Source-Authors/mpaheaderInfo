@@ -195,7 +195,7 @@ void MpegAudioInfoDlg::LoadMPEGFile(LPCTSTR file_path) {
   }
 
   try {
-    m_mpa_file = new CMPAFile(file_path);
+    m_mpa_file = new CMPAFile(file_path, &m_mpa_file_system);
 
     m_CtrlPrevFrame.EnableWindow(true);
     m_CtrlNextFrame.EnableWindow(true);
